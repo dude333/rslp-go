@@ -1,66 +1,58 @@
 package rslp
 
 import (
-	"log"
 	"strings"
 	"unicode"
 
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )
 
-func RSLPStemmer(term string, only string) string {
-	var removed bool
-	var stem string
+func RSLP(term string) string {
 	term = strings.ToLower(term)
-	only = strings.ToLower(only)
 
 	for _, rule := range defaultDictionary {
 		if rule.MinWordSize > 0 && len(term) < rule.MinWordSize {
 			continue
 		}
 
-		// fmt.Printf(`--> "%s" != "%s -> %v\n"`, only, rule.Name, only != strings.ToLower(rule.Name))
-		if only != "" && only != strings.ToLower(rule.Name) {
-			continue
+		stem := applyRules(term, rule)
+
+		if term != stem && (rule.Name == Substantivo || rule.Name == Verbo) {
+			return removeAccents(stem)
 		}
 
-		if (strings.ToLower(rule.Name) == "verb" || strings.ToLower(rule.Name) == "vowel") && removed {
-			continue
-		}
+		term = stem
+	}
 
-		if len(rule.Suffixes) == 0 || containsSuffix(term, rule.Suffixes) {
-			for _, subRule := range rule.SubRules {
-				if rule.WithSuffix {
-					if containsSuffix(term, subRule.Exceptions) {
-						continue
-					}
-				} else {
-					if containsException(term, subRule.Exceptions) {
-						continue
-					}
-				}
+	return removeAccents(term)
+}
 
-				if len(term)-len(subRule.Suffix) < subRule.StemSize {
+func applyRules(term string, rule Rule) string {
+	if len(rule.Suffixes) == 0 || containsSuffix(term, rule.Suffixes) {
+		for _, subRule := range rule.SubRules {
+			if rule.WithSuffix {
+				if containsSuffix(term, subRule.Exceptions) {
 					continue
 				}
-
-				if strings.HasSuffix(term, subRule.Suffix) {
-					removed = true
-					term = strings.TrimSuffix(term, subRule.Suffix)
-					stem = term + subRule.Replace
-					break
+			} else {
+				if containsException(term, subRule.Exceptions) {
+					continue
 				}
+			}
+
+			if len(term)-len(subRule.Suffix) < subRule.StemSize {
+				continue
+			}
+
+			if strings.HasSuffix(term, subRule.Suffix) {
+				return strings.TrimSuffix(term, subRule.Suffix) + subRule.Replace
 			}
 		}
 	}
-
-	if only != "" {
-		return term
-	}
-
-	return stem
+	return term
 }
 
 func containsSuffix(term string, suffixes []string) bool {
@@ -95,35 +87,42 @@ func removeAccents(str string) string {
 	return result
 }
 
-func rslp(word string) string {
-	if strings.HasSuffix(word, "s") {
-		word = RSLPStemmer(word, "Plural")
-		log.Println("plural: ", word)
-	}
+var stopwords = []string{
+	"a",
+	"as",
+	"com",
+	"da",
+	"das",
+	"de",
+	"do",
+	"dos",
+	"e",
+	"em",
+	"na",
+	"nas",
+	"no",
+	"nos",
+	"não",
+	"o",
+	"os",
+	"para",
+	"que",
+	"se",
+	"um",
+	"uma",
+	"-",
+	"_",
+}
 
-	if strings.HasSuffix(word, "a") {
-		word = RSLPStemmer(word, "Feminine")
-		log.Println("feminina: ", word)
-	}
-
-	word = RSLPStemmer(word, "Augmentative")
-	log.Println("aumentativa: ", word)
-	word = RSLPStemmer(word, "Adverb")
-	log.Println("adverbio: ", word)
-
-	wordAfterNoun := RSLPStemmer(word, "Noun")
-
-	if wordAfterNoun == word {
-		wordAfterVerb := RSLPStemmer(word, "Verb")
-		if wordAfterVerb == word {
-			word = RSLPStemmer(word, "Vowel")
-		} else {
-			word = wordAfterVerb
+func RSLPDoc(doc string) string {
+	s := strings.Map(removePunctuation, doc)
+	words := strings.Fields(s)
+	result := ""
+	for _, word := range words {
+		if slices.Contains(stopwords, word) {
+			continue
 		}
-	} else {
-		word = wordAfterNoun
+		result += RSLP(word) + " "
 	}
-
-	word = removeAccents(word)
-	return word
+	return strings.TrimSpace(result)
 }

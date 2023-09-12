@@ -12,17 +12,17 @@ func TestRSLPStemmer(t *testing.T) {
 	}{
 		{"correr", "corr"},
 		{"bons", "bom"},
-		{"bal\u00f5es", "bal"},
-		{"capit\u00e3es", "capita"},
+		{"bal\u00f5es", "balao"},
+		{"capit\u00e3es", "capit"},
 		{"normais", "norm"},
-		{"am\u00e1veis", "am"},
+		{"am\u00e1veis", "ama"},
 		{"len\u00e7\u00f3is", "lencol"},
 		{"barris", "barril"},
 		{"males", "mal"},
 		{"mares", "mar"},
 		{"casas", "cas"},
 		{"chefona", "chef"},
-		{"vil\u00e3", "vila"},
+		{"vil\u00e3", "vil"},
 		{"professora", "profes"},
 		{"americana", "americ"},
 		{"chilena", "chilen"},
@@ -211,7 +211,7 @@ func TestRSLPStemmer(t *testing.T) {
 	for i, tt := range tests {
 		name := fmt.Sprintf("teste #%d", i+1)
 		t.Run(name, func(t *testing.T) {
-			if got := RSLPStemmer(tt.term, ""); got != tt.want {
+			if got := RSLP(tt.term); got != tt.want {
 				t.Errorf("RSLPStemmer() = %v, want %v", got, tt.want)
 			}
 		})
@@ -225,11 +225,11 @@ func Test_rslp(t *testing.T) {
 	}{
 		{"correr", "corr"},
 		{"bons", "bom"},
-		{"bal\u00f5es", "bal"},
-		{"capit\u00e3es", "capita"},
+		{"balões", "bala"},
+		{"capitães", "capit"},
 		{"normais", "norm"},
-		{"am\u00e1veis", "am"},
-		{"len\u00e7\u00f3is", "lencol"},
+		{"amáveis", "am"},
+		{"lençóis", "lencol"},
 		{"barris", "barril"},
 		{"males", "mal"},
 		{"mares", "mar"},
@@ -237,9 +237,71 @@ func Test_rslp(t *testing.T) {
 	for i, tt := range tests {
 		name := fmt.Sprintf("teste #%d", i+1)
 		t.Run(name, func(t *testing.T) {
-			if got := rslp(tt.term); got != tt.want {
+			if got := RSLP(tt.term); got != tt.want {
 				t.Errorf("rslp() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_rslp_doc(t *testing.T) {
+	tests := []struct {
+		term string
+		want string
+	}{
+		{"Programa de Participação nos Resultados", "program particip result"},
+		{"Caixa Gerado nas Operações", "caix ger oper"},
+		{"Lucro Líquido do Período", "lucr liqu period"},
+		{"Depreciações e Amortizações", "depreci amort"},
+		{"Custo das Baixas do Imobilizado e Intangível", "cust baix imobil intang"},
+		{"Custos das Baixas do Imobilizado e Intangível", "cust baix imobil intang"},
+		{"Ajuste ao Valor Recuperável de Ativos", "ajust ao val recuper ativ"},
+		{"Custos das Baixas de Investimentos", "cust baix invest"},
+		{"Provisão para Perdas na Realização de Créditos", "provis perd realiz credit"},
+		{"Custos das Baixas de Investimentos", "cust baix invest"},
+		{"Imposto de Renda e Contribuição Social Diferidos, líquidos", "impost rend contribu soc difer liqu"},
+		{"Provisão para Perdas na Realização de Créditos", "provis perd realiz credit"},
+		{"Ajuste a Valor Presente - Ativos Financeiros", "ajust val pres ativ financ"},
+		{"Ajuste a Valor Presente de Ativos Financeiros", "ajust val pres ativ financ"},
+		{"Provisão para Contingências", "provis conting"},
+		{"Provisão para Perdas na Realização de Créditos", "provis perd realiz credit"},
+		{"Imposto de Renda e Contribuição Social Diferidos, líquidos", "impost rend contribu soc difer liqu"},
+		{"Plano de Aposentadoria e Plano de Assistência Médica", "plan aposentad plan assist med"},
+		{"Provisão para Perdas na Realização de Créditos", "provis perd realiz credit"},
+		{"Imposto de Renda e Contribuição Social Diferidos, líquido", "impost rend contribu soc difer liqu"},
+		{"Imposto de Renda e Contribuição Social Diferidos, líquidos", "impost rend contribu soc difer liqu"},
+		{"Juros sobre Financiamentos", "jur sobr financ"},
+		{"Provisão para Contingências", "provis conting"},
+		{"Plano de Aposentadoria e Plano de Assistência Médica", "plan aposentad plan assist med"},
+		{"Provisão para Contingências", "provis conting"},
+		{"Vairações Monetárias sobre Financiamentos", "vair monetar sobr financ"},
+		{"Juros sobre Financiamentos", "jur sobr financ"},
+		{"Plano de Aposentadoria e Plano de Assistência Médica", "plan aposentad plan assist med"},
+		{"Remuneração Créditos para Aumento de Capital", "remuner credit aument capit"},
+		{"Juros sobre Financiamentos", "jur sobr financ"},
+		{"Variações Monetárias sobre Financiamentos", "vari monetar sobr financ"},
+		{"Remuneração Créditos para Aumento de Capital", "remuner credit aument capit"},
+		{"Resultado de Equivalência Patrimonial", "result equival patrimon"},
+		{"Variações Monetárias sobre Financiamentos", "vari monetar sobr financ"},
+		{"Apropriação de Custos na Captação de Recursos de Terceiros", "apropri cust capt recurs terc"},
+		{"Juros e Atualizações Monetárias Arrendamento", "jur atual monetar arrend"},
+		{"Juros e Atualizações Monetárias Arrendamento Mercantil", "jur atual monetar arrend mercantil"},
+		{"Juros e Atualizações Monetárias Arrendamentos", "jur atual monetar arrend"},
+		{"Resultado de Equivalência Patrimonial", "result equival patrimon"},
+		{"Apropriação de Custos na Captação de Recursos de Terceiros", "apropri cust capt recurs terc"},
+		{"Resultado de Equivalência Patrimonial", "result equival patrimon"},
+		{"Variações Cambiais, líquidas", "vari camb liqu"},
+		{"Ajuste a Valor Justo - Investimentos", "ajust val just invest"},
+		{"Apropriação de Custos na Captação de Recursos de Terceiros", "apropri cust capt recurs terc"},
+		{"Variações Instrumentos Financeiros Derivativos", "vari instrument financ deriv"},
+		{"Ajuste a Valor Justo - Investimentos", "ajust val just invest"},
+		{"Resultado de Equivalência Patrimonial", "result equival patrimon"},
+		{"Apropriação de Custos na Captação de Recursos de Terceiros", "apropri cust capt recurs terc"},
+		{"Ajuste a Valor Justo - Investimentos", "ajust val just invest"},
+	}
+	for _, tt := range tests {
+		if got := RSLPDoc(tt.term); got != tt.want {
+			t.Errorf("rslp() = %v, want %v", got, tt.want)
+		}
 	}
 }

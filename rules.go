@@ -1,7 +1,19 @@
 package rslp
 
+type ruletype int
+
+const (
+	Plural ruletype = iota + 1
+	Advérbio
+	Feminino
+	Aumentantivo
+	Substantivo
+	Verbo
+	Vogal
+)
+
 type Rule struct {
-	Name        string
+	Name        ruletype
 	MinWordSize int
 	WithSuffix  bool
 	Suffixes    []string
@@ -17,13 +29,13 @@ type SubRule struct {
 
 var defaultDictionary = []Rule{
 	{
-		Name:        "Plural",
+		Name:        Plural,
 		MinWordSize: 3,
-		WithSuffix:  true,
+		WithSuffix:  false,
 		Suffixes:    []string{"s"},
 		SubRules: []SubRule{
 			{"ns", 1, "m", nil},
-			{"ões", 3, "ão", nil},
+			{"ões", 2, "ão", nil},
 			{"ães", 1, "ão", []string{"mães"}},
 			{"ais", 1, "al", []string{"cais", "mais"}},
 			{"éis", 2, "el", nil},
@@ -32,8 +44,8 @@ var defaultDictionary = []Rule{
 			{"is", 2, "il", []string{
 				"lápis", "cais", "mais", "crúcis", "biquínis", "pois", "depois", "dois", "leis",
 			}},
-			{"les", 3, "l", nil},
-			{"res", 3, "r", []string{"árvores"}},
+			{"les", 2, "l", nil},
+			{"res", 2, "r", []string{"árvores"}},
 			{"s", 2, "", []string{
 				"aliás", "pires", "lápis", "cais", "mais", "mas", "menos", "férias", "fezes", "pêsames",
 				"crúcis", "gás", "atrás", "moisés", "através", "convés", "ês", "país", "após", "ambas",
@@ -42,7 +54,7 @@ var defaultDictionary = []Rule{
 		},
 	},
 	{
-		Name:        "Adverb",
+		Name:        Advérbio,
 		MinWordSize: 0,
 		WithSuffix:  false,
 		Suffixes:    nil,
@@ -51,15 +63,14 @@ var defaultDictionary = []Rule{
 		},
 	},
 	{
-		Name:        "Feminine",
+		Name:        Feminino,
 		MinWordSize: 3,
-		WithSuffix:  true,
+		WithSuffix:  false,
 		Suffixes:    []string{"a", "ã"},
 		SubRules: []SubRule{
 			{"ona", 3, "ão", []string{
 				"abandona", "lona", "iona", "cortisona", "monótona", "maratona", "acetona", "detona", "carona",
 			}},
-			{"ã", 2, "ão", []string{"amanhã", "arapuã", "fã", "divã"}},
 			{"ora", 3, "or", nil},
 			{"na", 4, "no", []string{
 				"carona", "abandona", "lona", "iona", "cortisona", "monótona", "maratona", "acetona", "detona",
@@ -79,12 +90,13 @@ var defaultDictionary = []Rule{
 				"beira", "cadeira", "frigideira", "bandeira", "feira", "capoeira", "barreira", "fronteira",
 				"besteira", "poeira",
 			}},
+			{"ã", 2, "ão", []string{"amanhã", "arapuã", "fã", "divã"}},
 		},
 	},
 	{
-		Name:        "Augmentative",
+		Name:        Aumentantivo,
 		MinWordSize: 0,
-		WithSuffix:  true,
+		WithSuffix:  false,
 		Suffixes:    nil,
 		SubRules: []SubRule{
 			{"díssimo", 5, "", nil},
@@ -114,12 +126,12 @@ var defaultDictionary = []Rule{
 				"feição", "furacão", "gamão", "lampião", "leão", "macacão", "nação", "órfão", "orgão", "patrão",
 				"portão", "quinhão", "rincão", "tração", "falcão", "espião", "mamão", "folião", "cordão", "aptidão",
 				"campeão", "colchão", "limão", "leilão", "melão", "barão", "milhão", "bilhão", "fusão", "cristão",
-				"ilusão", "capitão", "estação", "senão",
+				"ilusão", "estação", "senão", "balão",
 			}},
 		},
 	},
 	{
-		Name:        "Noun",
+		Name:        Substantivo,
 		MinWordSize: 0,
 		WithSuffix:  false,
 		Suffixes:    nil,
@@ -223,7 +235,7 @@ var defaultDictionary = []Rule{
 		},
 	},
 	{
-		Name:        "Verb",
+		Name:        Verbo,
 		MinWordSize: 0,
 		WithSuffix:  false,
 		Suffixes:    nil,
@@ -336,9 +348,9 @@ var defaultDictionary = []Rule{
 		},
 	},
 	{
-		Name:        "Vowel",
+		Name:        Vogal,
 		MinWordSize: 0,
-		WithSuffix:  false,
+		WithSuffix:  true,
 		Suffixes:    nil,
 		SubRules: []SubRule{
 			{"bil", 2, "vel", nil},
