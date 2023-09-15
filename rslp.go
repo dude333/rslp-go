@@ -10,7 +10,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-func RSLP(term string) string {
+func Palavra(term string) string {
 	term = strings.ToLower(term)
 
 	for _, rule := range defaultDictionary {
@@ -114,7 +114,7 @@ var stopwords = []string{
 	"_",
 }
 
-func RSLPDoc(doc string) string {
+func Frase(doc string) string {
 	s := strings.Map(removePunctuation, doc)
 	words := strings.Fields(s)
 	result := ""
@@ -122,7 +122,7 @@ func RSLPDoc(doc string) string {
 		if slices.Contains(stopwords, word) {
 			continue
 		}
-		result += RSLP(word) + " "
+		result += Palavra(word) + " "
 	}
 	return strings.TrimSpace(result)
 }
