@@ -4,7 +4,6 @@ import (
 	"strings"
 	"unicode"
 
-	"golang.org/x/exp/slices"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -119,10 +118,19 @@ func Frase(doc string) string {
 	words := strings.Fields(s)
 	result := ""
 	for _, word := range words {
-		if slices.Contains(stopwords, word) {
+		if contains(stopwords, word) {
 			continue
 		}
 		result += Palavra(word) + " "
 	}
 	return strings.TrimSpace(result)
+}
+
+func contains(list []string, word string) bool {
+	for i := range list {
+		if word == list[i] {
+			return true
+		}
+	}
+	return false
 }
