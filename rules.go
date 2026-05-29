@@ -6,7 +6,7 @@ const (
 	Plural ruletype = iota + 1
 	Advérbio
 	Feminino
-	Aumentantivo
+	Aumentativo
 	Substantivo
 	Verbo
 	Vogal
@@ -94,7 +94,7 @@ var defaultDictionary = []Rule{
 		},
 	},
 	{
-		Name:        Aumentantivo,
+		Name:        Aumentativo,
 		MinWordSize: 0,
 		WithSuffix:  false,
 		Suffixes:    nil,
@@ -274,7 +274,6 @@ var defaultDictionary = []Rule{
 			{"arão", 2, "", nil},
 			{"arde", 2, "", nil},
 			{"arei", 2, "", nil},
-			{"aremo", 2, "", nil},
 			{"aram", 2, "", nil},
 			{"aria", 2, "", nil},
 			{"armo", 2, "", nil},

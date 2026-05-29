@@ -13,7 +13,7 @@ func Palavra(term string) string {
 	term = strings.ToLower(term)
 
 	for _, rule := range defaultDictionary {
-		if rule.MinWordSize > 0 && len(term) < rule.MinWordSize {
+		if rule.MinWordSize > 0 && len([]rune(term)) < rule.MinWordSize {
 			continue
 		}
 
@@ -42,7 +42,7 @@ func applyRules(term string, rule Rule) string {
 				}
 			}
 
-			if len(term)-len(subRule.Suffix) < subRule.StemSize {
+			if len([]rune(term))-len([]rune(subRule.Suffix)) < subRule.StemSize {
 				continue
 			}
 
@@ -118,7 +118,7 @@ func Frase(doc string) string {
 	words := strings.Fields(s)
 	result := ""
 	for _, word := range words {
-		if contains(stopwords, word) {
+		if contains(stopwords, strings.ToLower(word)) {
 			continue
 		}
 		result += Palavra(word) + " "
